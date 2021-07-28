@@ -23,7 +23,7 @@ class LoginTest extends TestCase
             'password' => '123456789'
         ];
 
-        $response = $this->post('/api/login', $data);
+        $response = $this->post('/api/test_login', $data);
         $response->assertStatus(200);
         $response->assertJson(['status' => 'error']);
     }
@@ -38,7 +38,7 @@ class LoginTest extends TestCase
             'password' => '123456'
         ];
 
-        $response = $this->post('/api/login', $data);
+        $response = $this->post('/api/test_login', $data);
         $response->assertStatus(200);
         $response->assertJson(['status' => 'success']);
     }

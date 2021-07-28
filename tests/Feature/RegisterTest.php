@@ -19,7 +19,7 @@ class RegisterTest extends TestCase
             'password' => '123456'
         ];
 
-        $response = $this->post('api/register',$data);
+        $response = $this->post('api/test_register',$data);
         $response->assertStatus(200);
         $response->assertJson(['status' => 'error']);
     }
@@ -32,7 +32,7 @@ class RegisterTest extends TestCase
             'password' => '123456'
         ];
 
-        $response = $this->post('api/register',$data);
+        $response = $this->post('api/test_register',$data);
         $response->assertStatus(200);
         $response->assertJson(['status' => 'error']);
     }
@@ -45,7 +45,7 @@ class RegisterTest extends TestCase
             'password' => null,
         ];
 
-        $response = $this->post('api/register',$data);
+        $response = $this->post('api/test_register',$data);
         $response->assertStatus(200);
         $response->assertJson(['status' => 'error']);
     }

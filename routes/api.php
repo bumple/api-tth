@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\TestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,5 +19,5 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
-Route::post('login',[TestController::class,'login']);
-Route::post('register',[TestController::class,'register']);
+Route::post('test_login',[TestController::class,'login']);
+Route::post('test_register',[TestController::class,'register']);
