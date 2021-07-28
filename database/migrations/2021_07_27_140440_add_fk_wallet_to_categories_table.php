@@ -14,7 +14,7 @@ class AddFkWalletToCategoriesTable extends Migration
     public function up()
     {
         Schema::table('categories', function (Blueprint $table) {
-            $table->unsignedBigInteger('wallet_id');
+            $table->unsignedBigInteger('wallet_id')->default(1);
             $table->foreign('wallet_id')->references('id')->on('wallets');
         });
     }

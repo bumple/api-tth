@@ -14,7 +14,7 @@ class AddFkUserToWalletTable extends Migration
     public function up()
     {
         Schema::table('wallets', function (Blueprint $table) {
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->default(1);
             $table->foreign('user_id')->references('id')->on('users');
         });
     }
