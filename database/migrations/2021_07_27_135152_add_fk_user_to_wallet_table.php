@@ -19,11 +19,14 @@ class AddFkUserToWalletTable extends Migration
         });
     }
 
+
     /**
      * Reverse the migrations.
      *
      * @return void
      */
+
+
     public function down()
     {
         Schema::table('wallet', function (Blueprint $table) {
