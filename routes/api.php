@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Api\TestController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,5 +20,7 @@ use Illuminate\Support\Facades\Route;
 //    return $request->user();
 //});
 
-Route::post('test_login',[TestController::class,'login']);
-Route::post('test_register',[TestController::class,'register']);
+Route::post('test_login',[AuthController::class,'login']);
+Route::post('test_register',[AuthController::class,'register']);
+
+Route::resource('wallet',WalletController::class);
