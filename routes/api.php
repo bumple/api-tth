@@ -24,3 +24,4 @@ Route::post('test_login',[AuthController::class,'login']);
 Route::post('test_register',[AuthController::class,'register']);
 
 Route::resource('wallet',WalletController::class);
+Route::post('wallet/addmoney/:id',[WalletController::class,'plusMoney']);

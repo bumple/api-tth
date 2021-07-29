@@ -92,7 +92,8 @@ class WalletController extends Controller
     public function update(Request $request, $id)
     {
         $wallet = Wallet::find($id);
-        $wallet->amount += $request->amount;
+        $wallet->name = $request->name;
+        $wallet->amount = $request->amount;
         $wallet->description = $request->description;
         $wallet->save();
 
@@ -103,13 +104,45 @@ class WalletController extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function plusMoney(Request $request, $id)
+    {
+        $wallet = Wallet::find($id);
+        $wallet->amount += $request->amount;
+        $wallet->description = $request->description;
+        $wallet->save();
+
+        $data = [
+            'status' => 'success',
+        ];
+        return response()->json($data);
+    }
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
-        //
-    }
+        $wallet = Wallet::find($id);
+        if(!$wallet){
+            $data = [
+                'status' => 'error',
+                'message' => 'System error'
+            ];
+        } else {
+            $wallet->delete();
+            $data = [
+                'status' => 'success',
+                'message' => 'delete successfully'
+            ];
+        }
+        return response()->json($data);
+        }
 }
