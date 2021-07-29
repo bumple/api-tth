@@ -11,6 +11,18 @@ class RegisterTest extends TestCase
 {
     use DatabaseMigrations;
 
+    public function test_register_success()
+    {
+        $data = [
+            'name' => 'admin',
+            'email' => 'admin2@gmail.com',
+            'password' => '123456789'
+        ];
+        $response = $this->post('api/test_register',$data);
+        $response->assertStatus(200);
+        $response->assertJson(['status' => 'success']);
+    }
+
     public function test_register_with_name_null()
     {
         $data = [
