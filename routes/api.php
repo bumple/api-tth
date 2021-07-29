@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\TestController;
+use App\Http\Controllers\AuthUserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('test_login',[TestController::class,'login']);
 Route::post('test_register',[TestController::class,'register']);
+Route::post('login',[AuthUserController::class,'login']);
+Route::post('register',[AuthUserController::class,'register']);
