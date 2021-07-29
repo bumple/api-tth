@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TransactionController;
+use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\WalletController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -24,6 +25,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('test_login',[AuthController::class,'login']);
 Route::post('test_register',[AuthController::class,'register']);
+Route::post('login',[AuthUserController::class,'login']);
+Route::post('register',[AuthUserController::class,'register']);
+
 
 Route::resource('wallet',WalletController::class);
 Route::put('wallet/info/{id}',[WalletController::class,'plusMoney'])->name('wallet.pushMoney');
