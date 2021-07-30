@@ -25,11 +25,23 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('test_login',[AuthController::class,'login']);
 Route::post('test_register',[AuthController::class,'register']);
-Route::post('login',[AuthUserController::class,'login']);
-Route::post('register',[AuthUserController::class,'register']);
+Route::post('/login', [AuthUserController::class, 'login'])->name('login');
 
 
-Route::resource('wallet',WalletController::class);
-Route::put('wallet/info/{id}',[WalletController::class,'plusMoney'])->name('wallet.pushMoney');
-Route::resource('transaction', TransactionController::class);
-Route::resource('category', CategoryController::class);
+Route::group([
+    'middleware' => 'api',
+    'prefix' => 'auth'
+
+], function ($router) {
+
+    Route::resource('wallet',WalletController::class);
+    Route::put('wallet/info/{id}',[WalletController::class,'plusMoney'])->name('wallet.pushMoney');
+    Route::resource('transaction', TransactionController::class);
+    Route::resource('category', CategoryController::class);
+
+
+    Route::post('/register', [AuthUserController::class, 'register'])->name('register');
+    Route::post('/logout', [AuthUserController::class, 'logout'])->name('logout');
+    Route::post('/refresh', [AuthUserController::class, 'refresh'])->name('refresh');
+    Route::get('/user-profile', [AuthUserController::class, 'userProfile']);
+});
