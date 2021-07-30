@@ -6,62 +6,115 @@ use App\Models\User;
 use http\Client\Response;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Testing\Fluent\Concerns\Has;
-
+use Illuminate\Validation\ValidationException;
+use JWTAuth;
 class AuthUserController extends Controller
 {
-    public function login(Request $request)
+
+    public function __construct()
     {
-//Auth::attempt($data)
-        $data = $request->only(['email', 'password']);
-        $data['password'] = Hash::make($data['password']);
-        if (Auth::attempt($data)) {
-            $dataRes = [
-                "sucess" => 'thanh cong',
-                "boolean" => " true"
-            ];
-        } else {
-            $dataRes = [
-                "sucess" => 'ko thanh cong',
-                "boolean" => " false",
-                "data" => $request
-            ];
-        }
-        return response()->json($dataRes);
+//        $this->middleware('auth:api', ['except' => ['login','register']]);
     }
 
-    public function register(Request $request)
+
+
+
+//    public function login(Request $request)
+//    {
+////Auth::attempt($data)
+//        $credentials = $request->only(['email', 'password']);
+//        $credentials['password'] = Hash::make($credentials['password']);
+//        if (! $token = Auth::attempt($credentials)) {
+//            return response()->json(['error' => 'Unauthorized'], 401);
+//        } return $this->respondWithToken($token);
+//    }
+
+
+    /**
+     * @throws ValidationException
+     */
+    public function login(Request $request): JsonResponse
     {
-        return dd(1);
-        $validator = Validator::make($request->all(),[
-            "email" => "required|unique:users",
-            "name" => "required|min:6",
-            "password" => "required|min:6"
+        $data = $request->only('email','password');
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required|string|min:6',
         ]);
 
-
-
-        if (!$validator->fails()) {
-            $user = new User();
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
-            $user->save();
-            $data = [
-                "msg" => "Thêm mới thành công",
-                "test" => "123"
-            ];
-        } else {
-
-            $data = [
-                "msg" => "Email này đã tồn tại",
-                "test" => $validator->errors()
-            ];
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
         }
-        return \response()->json($data);
+
+        if (!$token = JWTAuth::attempt($data)) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        return $this->createNewToken($token);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return JsonResponse
+     */
+    public function refresh() {
+        return $this->createNewToken(auth()->refresh());
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function register(Request $request)
+    {
+
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|between:2,100',
+            'email' => 'required|string|email|max:100|unique:users',
+            'password' => 'required|string|confirmed|min:6',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        $user = User::create(array_merge(
+            $validator->validated(),
+            ['password' => Hash::make($request->password)]
+        ));
+
+        return response()->json([
+            'message' => 'User successfully registered',
+            'user' => $user
+        ], 201);
+
+    }
+
+    public function logout(): JsonResponse
+    {
+        auth()->logout();
+        return response()->json(['message' => 'User successfully signed out']);
+    }
+
+    /**
+     * Get the token array structure.
+     *
+     * @param string $token
+     *
+     * @return JsonResponse
+     */
+    protected function createNewToken(string $token): JsonResponse
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
+            'user' => auth()->user()
+        ]);
     }
 }
