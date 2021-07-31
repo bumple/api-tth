@@ -47,6 +47,8 @@ class WalletController extends Controller
         $wallet->name = $request->name;
         $wallet->amount = $request->amount;
         $wallet->description = $request->description;
+        $wallet->icon = $request->icon;
+        $wallet->user_id = $request->user_id;
         $wallet->save();
 
         $data = [
