@@ -45,8 +45,12 @@ class CategoryController extends Controller
         $cate = new Category();
         $cate->name = $request->name;
         $cate->note = $request->note;
+        $cate->wallet_id = $request->wallet_id;
         $cate->save();
-        return response()->json();
+        $data = [
+            'status' => 'success'
+        ];
+        return response()->json($data);
     }
 
     /**
@@ -85,7 +89,11 @@ class CategoryController extends Controller
         $cate->name = $request->name;
         $cate->note = $request->note;
         $cate->save();
-        return response()->json();
+        $data = [
+            'status' => 'success',
+            'message' => 'Update success'
+        ];
+        return response()->json($data);
     }
 
     /**
