@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
 use Illuminate\Http\JsonResponse;
@@ -137,24 +139,15 @@ class WalletController extends Controller
     public function destroy($id)
     {
         $wallet = Wallet::find($id);
-        if (!$wallet) {
-            $data = [
-                'status' => 'error',
-                'message' => 'System error'
-            ];
-        } else {
-            $wallet->delete();
-            $data = [
-                'status' => 'success',
-                'message' => 'delete successfully'
-            ];
-        }
-        return response()->json($data);
+        $wallet->transactions()->delete();
+        $wallet->categories()->delete();
+        $wallet->delete();
+        return response()->json();
     }
 
     public function getWalletsByUserid($id): JsonResponse
     {
-        $data = Wallet::where('user_id',$id)->get();
+        $data = Wallet::where('user_id', $id)->get();
 
         return response()->json($data);
     }

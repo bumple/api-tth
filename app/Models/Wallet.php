@@ -19,4 +19,11 @@ class Wallet extends Model
     public function user(){
         return $this->belongsTo(User::class);
     }
+
+    public function transactions(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(Transaction::class,Category::class);
+    }
+
+
 }
