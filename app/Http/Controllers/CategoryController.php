@@ -14,14 +14,21 @@ class CategoryController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $cate = Category::all();
+        $cate = Category::where('wallet_id',$request->wallet_id);
         $data = [
             'status' => 'success',
             'data' => $cate
         ];
         return response()->json($data);
+    }
+
+    public function getCategoryByWalletId($id)
+    {
+        $wallet = Wallet::find($id);
+        $cate = $wallet->categories()->get();
+        return response()->json($cate);
     }
 
     /**

@@ -20,7 +20,7 @@ class WalletController extends Controller
      */
     public function index()
     {
-        $wallets = Wallet::all();
+        $wallets = Wallet::with('categories')->get();
         $data = [
             'status' => 'success',
             'data' => $wallets

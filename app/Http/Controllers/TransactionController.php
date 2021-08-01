@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,14 @@ class TransactionController extends Controller
     {
         $tran = Transaction::all();
         return response()->json($tran);
+    }
+
+    public function findByCategoryId($id): JsonResponse
+    {
+        $category = Category::find($id);
+        $trans = $category->transactions()->get();
+
+        return response()->json($trans);
     }
 
     /**
@@ -102,8 +111,9 @@ class TransactionController extends Controller
     public function update(Request $request, int $id): JsonResponse
     {
         $tran = Transaction::find($id);
-        $tran->name = $request->name;
         $tran->note = $request->note;
+        $tran->money = $request->money;
+        $tran->created_at = $request->date;
         $tran->save();
         return response()->json();
     }
@@ -117,7 +127,7 @@ class TransactionController extends Controller
     public function destroy(int $id): JsonResponse
     {
         {
-            $tran = Wallet::find($id);
+            $tran = Transaction::find($id);
             if (!$tran) {
                 $data = [
                     'status' => 'error',
