@@ -39,7 +39,7 @@ Route::group([
     Route::resource('transaction', TransactionController::class);
     Route::resource('category', CategoryController::class);
 
-
+    Route::post('/get-wallet-by-userid/{id}',[WalletController::class,'getWalletsByUserid']);
     Route::post('/register', [AuthUserController::class, 'register'])->name('register');
     Route::post('/logout', [AuthUserController::class, 'logout'])->name('logout');
     Route::post('/refresh', [AuthUserController::class, 'refresh'])->name('refresh');
