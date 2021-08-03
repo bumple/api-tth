@@ -125,8 +125,8 @@ class WalletController extends Controller
         $wallet->name = $request->name;
         $wallet->amount = $request->amount;
         $wallet->description = $request->description;
+        $wallet->icon = $request->icon;
         $wallet->save();
-
         $data = [
             'status' => 'success',
         ];
