@@ -57,20 +57,17 @@ class TransactionController extends Controller
         $id = $request->wallet_id;
         $wallet = Wallet::find($id);
 
-        if ($request->money > $wallet->amount) {
-            $data = [
-                'status' => 'error',
-                'message' => 'Insufficient wallet balance'
-            ];
+        $cate = Category::find($request->category_id);
+        $type = $cate->type;
+        if ($type == 'outcome') {
+            if($request->money < $wallet->amount){
+                $wallet->amount -= $request->money;
+            }
         } else {
-            $data = [
-                'status' => 'success',
-                'message' => 'create transaction success'
-            ];
-            $wallet->amount -= $request->money;
+            $wallet->amount += $request->money;
         }
         $wallet->save();
-        return response()->json($data);
+        return response()->json();
     }
 
     /**
