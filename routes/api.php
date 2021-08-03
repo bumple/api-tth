@@ -38,6 +38,8 @@ Route::group([
     Route::put('wallet/info/{id}',[WalletController::class,'plusMoney'])->name('wallet.pushMoney');
     Route::resource('transaction', TransactionController::class);
     Route::resource('category', CategoryController::class);
+    Route::get('transaction/info/{id}',[TransactionController::class,'findByCategoryId']);
+    Route::get('category/info/{id}',[CategoryController::class,'getCategoryByWalletId']);
 
     Route::post('/get-wallet-by-userid/{id}',[WalletController::class,'getWalletsByUserid']);
     Route::post('/register', [AuthUserController::class, 'register'])->name('register');
