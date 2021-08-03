@@ -100,7 +100,6 @@ class WalletController extends Controller
     {
         $wallet = Wallet::find($id);
         $wallet->name = $request->name;
-        $wallet->amount = $request->amount;
         $wallet->description = $request->description;
         $wallet->icon = $request->icon;
         $wallet->save();
