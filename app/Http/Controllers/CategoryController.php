@@ -111,13 +111,15 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        $cate = Wallet::find($id);
+        $cate = Category::find($id);
+
         if (!$cate) {
             $data = [
                 'status' => 'error',
                 'message' => 'System error'
             ];
         } else {
+            $cate->transactions()->delete();
             $cate->delete();
             $data = [
                 'status' => 'success',
