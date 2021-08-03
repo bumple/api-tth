@@ -6,8 +6,11 @@ use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\User;
 use App\Models\Wallet;
+use http\Env\Response;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use mysql_xdevapi\Table;
 
@@ -54,6 +57,26 @@ class WalletController extends Controller
         $wallet->icon = $request->icon;
         $wallet->user_id = $request->user_id;
         $wallet->save();
+
+        $walletdata = Wallet::where('user_id',$request->user_id)->get();
+        $walletID = $walletdata[count($walletdata)-1]->id;
+
+        $cate = new Category();
+        $cate->name = 'Income';
+        $cate->note = 'Deposit money to wallet';
+        $cate->type = 'income';
+        $cate->wallet_id = $walletID;
+        $cate->save();
+
+        $catedata = Category::where('wallet_id',$walletID)->get();
+        $cateIncomeID = $catedata[0]->id;
+
+        $tran = new Transaction();
+        $tran->money = $request->amount;
+        $tran->note = 'First add money when create a wallet';
+        $tran->date = date('d/m/Y');
+        $tran->category_id = $cateIncomeID;
+        $tran->save();
 
         $data = [
             'status' => 'success',
