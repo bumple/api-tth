@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use mysql_xdevapi\Table;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class WalletController extends Controller
 {
@@ -126,7 +127,6 @@ class WalletController extends Controller
     {
         $wallet = Wallet::find($id);
         $wallet->name = $request->name;
-        $wallet->amount = $request->amount;
         $wallet->description = $request->description;
         $wallet->icon = $request->icon;
         $wallet->save();
@@ -175,7 +175,6 @@ class WalletController extends Controller
     public function getWalletsByUserid($id): JsonResponse
     {
         $data = Wallet::where('user_id', $id)->get();
-
         return response()->json($data);
     }
 }
