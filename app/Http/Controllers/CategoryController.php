@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Transaction;
 use App\Models\Wallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -134,17 +135,17 @@ class CategoryController extends Controller
     {
         $cate = Category::where('wallet_id', $id)->get();
         $cateID = []; // [1 mang cate] $cate[$i]->id -> [1,3,4]
-        $cateName = [];
         for ($i = 0; $i < count($cate); $i++) {
             array_push($cateID, $cate[$i]->id);
-            $cateName[$cate[$i]->id] = $cate[$i]->name;
         }
-        $tran = [];
-        for ($i = 0;$i < count($cateID);$i++){
-            $data = DB::table('transactions')->where('category_id',$cateID[$i])
-            ->where('date',date('Y-m-d'))->get();
-            array_push($tran,$data);
+
+        $data = Transaction::with('category')->whereIn('category_id', $cateID)
+            ->where('date', date('Y-m-d'))->get();
+        $total = 0;
+        for ($i = 0; $i < count($data); $i++) {
+            $total += $data[$i]->money;
         }
-        return response()->json([$tran,$cateName]);
+        return response()->json(['data' => $data, 'total' => $total]);
     }
+
 }
