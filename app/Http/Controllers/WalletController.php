@@ -10,6 +10,7 @@ use http\Env\Response;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use mysql_xdevapi\Table;
@@ -74,8 +75,10 @@ class WalletController extends Controller
         $tran = new Transaction();
         $tran->money = $request->amount;
         $tran->note = 'First add money when create a wallet';
-        $tran->date = date('d-m-Y');
+        $tran->date = date('Y-m-d');
         $tran->category_id = $cateIncomeID;
+        $tran->user_id = $request->user_id;
+        $tran->wallet_name = $request->name;
         $tran->save();
 
         $data = [
