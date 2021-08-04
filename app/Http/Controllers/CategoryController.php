@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Wallet;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CategoryController extends Controller
 {
@@ -16,7 +17,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $cate = Category::where('wallet_id',$request->wallet_id);
+        $cate = Category::where('wallet_id', $request->wallet_id);
         $data = [
             'status' => 'success',
             'data' => $cate
@@ -127,5 +128,23 @@ class CategoryController extends Controller
             ];
         }
         return response()->json($data);
+    }
+
+    public function categoryStatistic($id)
+    {
+        $cate = Category::where('wallet_id', $id)->get();
+        $cateID = []; // [1 mang cate] $cate[$i]->id -> [1,3,4]
+        $cateName = [];
+        for ($i = 0; $i < count($cate); $i++) {
+            array_push($cateID, $cate[$i]->id);
+            $cateName[$cate[$i]->id] = $cate[$i]->name;
+        }
+        $tran = [];
+        for ($i = 0;$i < count($cateID);$i++){
+            $data = DB::table('transactions')->where('category_id',$cateID[$i])
+            ->where('date',date('Y-m-d'))->get();
+            array_push($tran,$data);
+        }
+        return response()->json([$tran,$cateName]);
     }
 }
