@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use mysql_xdevapi\Table;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class WalletController extends Controller
 {
