@@ -74,7 +74,7 @@ class WalletController extends Controller
         $tran = new Transaction();
         $tran->money = $request->amount;
         $tran->note = 'First add money when create a wallet';
-        $tran->date = date('d/m/Y');
+        $tran->date = date('d-m-Y');
         $tran->category_id = $cateIncomeID;
         $tran->save();
 
