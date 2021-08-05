@@ -27,7 +27,8 @@ class Wallet extends Model
         return $this->hasManyThrough(Transaction::class,Category::class);
     }
 
-    public function checkWalleByUser(){
+    public function checkWalleByUser(): bool
+    {
         return $this->user->id === Auth::id();
     }
 }
