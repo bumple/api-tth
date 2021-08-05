@@ -24,6 +24,7 @@ class WalletController extends Controller
      */
     public function index()
     {
+
         $wallets = Wallet::with('categories','transactions')->get();
         $data = [
             'status' => 'success',
