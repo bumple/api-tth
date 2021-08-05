@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransactionsExport;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Wallet;
@@ -9,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use const http\Client\Curl\AUTH_BASIC;
 
@@ -89,7 +92,7 @@ class TransactionController extends Controller
     public function show(int $id): JsonResponse
     {
         $tran = Transaction::find($id);
-        return $tran->checkTranByUser() ? response()->json($tran) : response()->json([], 404);
+        return response()->json($tran);
     }
 
     /**
@@ -112,7 +115,6 @@ class TransactionController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
-
         $tran = Transaction::find($id);
         if ($tran->checkTranByUser()) {
             $tran->note = $request->note;
@@ -158,6 +160,7 @@ class TransactionController extends Controller
         $month = $carbon->month;
         $year = $carbon->year;
         $lastDayofMonth = Carbon::now()->endOfMonth()->toDateString();
+
         $time = [
             'week1' => [Carbon::create($year, $month, 1)->toDateString(), Carbon::create($year, $month, 7)->toDateString()],
             'week2' => [Carbon::create($year, $month, 8)->toDateString(), Carbon::create($year, $month, 14)->toDateString()],
@@ -198,4 +201,8 @@ class TransactionController extends Controller
             'money' => $tranArray]);
     }
 
+    public function export(): BinaryFileResponse
+    {
+        return Excel::download(new TransactionsExport(),'transactions.xlsx');
+    }
 }
