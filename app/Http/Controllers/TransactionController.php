@@ -21,16 +21,18 @@ class TransactionController extends Controller
      */
     public function index()
     {
-        $tran = Transaction::all();
+        $tran = Transaction::where('user_id', Auth::id())->get();
         return response()->json($tran);
     }
 
     public function findByCategoryId($id): JsonResponse
     {
         $category = Category::find($id);
-        $trans = $category->transactions()->get();
-
-        return response()->json($trans);
+        if ($category->checkWalleByUser()) {
+            $trans = $category->transactions()->get();
+            return response()->json($trans);
+        }
+        return response()->json([], 404);
     }
 
     /**
@@ -51,30 +53,31 @@ class TransactionController extends Controller
      */
     public function store(Request $request): JsonResponse
     {
-        $tran = new Transaction();
-        $tran->note = $request->note;
-        $tran->date = $request->date;
-        $tran->category_id = $request->category_id;
-        $tran->user_id = $request->user_id;
-
         $id = $request->wallet_id;
         $wallet = Wallet::find($id);
-
-        $tran->wallet_name = $wallet->name;
-
         $cate = Category::find($request->category_id);
-        $type = $cate->type;
-        if ($type == 'outcome') {
-            if ($request->money < $wallet->amount) {
-                $wallet->amount -= $request->money;
-                $tran->money = -$request->money;
+
+        if ($request->category_id && $request->wallet_id && $wallet->checkWalleByUser() && $cate->checkCategoryByUser()) {
+            $tran = new Transaction();
+            $tran->note = $request->note;
+            $tran->date = $request->date;
+            $tran->category_id = $request->category_id;
+            $tran->user_id = $request->user_id;
+            $tran->wallet_name = $wallet->name;
+            $type = $cate->type;
+            if ($type == 'outcome') {
+                if ($request->money < $wallet->amount) {
+                    $wallet->amount -= $request->money;
+                    $tran->money = -$request->money;
+                }
+            } else {
+                $wallet->amount += $request->money;
             }
-        } else {
-            $wallet->amount += $request->money;
+            $tran->save();
+            $wallet->save();
+            return response()->json([], 201);
         }
-        $tran->save();
-        $wallet->save();
-        return response()->json();
+        return response()->json([], 404);
     }
 
     /**
@@ -86,7 +89,7 @@ class TransactionController extends Controller
     public function show(int $id): JsonResponse
     {
         $tran = Transaction::find($id);
-        return response()->json($tran);
+        return $tran->checkTranByUser() ? response()->json($tran) : response()->json([], 404);
     }
 
     /**
@@ -109,12 +112,16 @@ class TransactionController extends Controller
      */
     public function update(Request $request, int $id): JsonResponse
     {
+
         $tran = Transaction::find($id);
-        $tran->note = $request->note;
-        $tran->money = $request->money;
-        $tran->created_at = $request->date;
-        $tran->save();
-        return response()->json();
+        if ($tran->checkTranByUser()) {
+            $tran->note = $request->note;
+            $tran->money = $request->money;
+            $tran->created_at = $request->date;
+            $tran->save();
+            return response()->json(['message' => 'success'], 201);
+        }
+        return response()->json(['message' => 'unsuccessful'], 404);
     }
 
     /**
@@ -125,22 +132,24 @@ class TransactionController extends Controller
      */
     public function destroy(int $id): JsonResponse
     {
-        {
             $tran = Transaction::find($id);
-            if (!$tran) {
-                $data = [
-                    'status' => 'error',
-                    'message' => 'System error'
-                ];
-            } else {
-                $tran->delete();
-                $data = [
-                    'status' => 'success',
-                    'message' => 'delete successfully'
-                ];
+            if ($tran->checkTranByUser()) {
+
+                if (!$tran) {
+                    $data = [
+                        'status' => 'error',
+                        'message' => 'System error'
+                    ];
+                } else {
+                    $tran->delete();
+                    $data = [
+                        'status' => 'success',
+                        'message' => 'delete successfully'
+                    ];
+                }
+                return response()->json($data);
             }
-            return response()->json($data);
-        }
+            return response()->json([], 404);
     }
 
     public function getReportTransaction()
@@ -149,7 +158,6 @@ class TransactionController extends Controller
         $month = $carbon->month;
         $year = $carbon->year;
         $lastDayofMonth = Carbon::now()->endOfMonth()->toDateString();
-
         $time = [
             'week1' => [Carbon::create($year, $month, 1)->toDateString(), Carbon::create($year, $month, 7)->toDateString()],
             'week2' => [Carbon::create($year, $month, 8)->toDateString(), Carbon::create($year, $month, 14)->toDateString()],
@@ -158,13 +166,13 @@ class TransactionController extends Controller
         ];
 
         $tranMoneyWeek1 = Transaction::selectRaw('SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
-       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->whereBetween('date', $time['week1'])->first();
+       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('user_id',Auth::id())->whereBetween('date', $time['week1'])->first();
         $tranMoneyWeek2 = Transaction::selectRaw('SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
-       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->whereBetween('date', $time['week2'])->first();
+       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('user_id',Auth::id())->whereBetween('date', $time['week2'])->first();
         $tranMoneyWeek3 = Transaction::selectRaw('SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
-       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->whereBetween('date', $time['week3'])->first();
+       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('user_id',Auth::id())->whereBetween('date', $time['week3'])->first();
         $tranMoneyWeek4 = Transaction::selectRaw('SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
-       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->whereBetween('date', $time['week4'])->first();
+       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('user_id',Auth::id())->whereBetween('date', $time['week4'])->first();
 
 
         return response()->json([
@@ -180,13 +188,14 @@ class TransactionController extends Controller
         $tranArray = [];
         $from = $request->from;
         $to = $request->to;
-        $data = Wallet::where('user_id',$request->user_id)->pluck('name');
-        foreach ($data as $item){
+        $data = Wallet::where('user_id', Auth::id())->pluck('name');
+        foreach ($data as $item) {
             $tran = Transaction::selectRaw('SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
-       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('wallet_name',$item)->whereBetween('date',[$from,$to])->first();
-            array_push($tranArray,$tran);
+       SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('wallet_name', $item)->where('user_id',Auth::id())->whereBetween('date', [$from, $to])->first();
+            array_push($tranArray, $tran);
         }
-        return response()->json(['wallet_name'=>$data,
-            'money'=>$tranArray]);
+        return response()->json(['wallet_name' => $data,
+            'money' => $tranArray]);
     }
+
 }
