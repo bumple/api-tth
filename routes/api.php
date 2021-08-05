@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\WalletController;
@@ -49,4 +50,6 @@ Route::group([
     Route::post('/logout', [AuthUserController::class, 'logout'])->name('logout');
     Route::post('/refresh', [AuthUserController::class, 'refresh'])->name('refresh');
     Route::get('/user-profile', [AuthUserController::class, 'userProfile']);
+
+    Route::post('/export',[TransactionController::class,'exportToExcel']);
 });

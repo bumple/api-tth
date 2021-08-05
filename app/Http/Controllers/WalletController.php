@@ -187,7 +187,7 @@ class WalletController extends Controller
 
     public function getWalletsByUserid($id): JsonResponse
     {
-        $data = Wallet::where('user_id', $id)->get();
+        $data = Wallet::where('user_id', Auth::id())->get();
         return response()->json($data);
     }
 
