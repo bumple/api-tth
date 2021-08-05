@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TransactionsExport;
 use App\Models\Category;
 use App\Models\Transaction;
 use App\Models\Wallet;
@@ -9,6 +10,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use const http\Client\Curl\AUTH_BASIC;
 
@@ -188,5 +191,10 @@ class TransactionController extends Controller
         }
         return response()->json(['wallet_name'=>$data,
             'money'=>$tranArray]);
+    }
+
+    public function export(): BinaryFileResponse
+    {
+        return Excel::download(new TransactionsExport(),'transactions.xlsx');
     }
 }
