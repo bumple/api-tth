@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Transaction extends Model
 {
@@ -18,4 +19,9 @@ class Transaction extends Model
     {
         return $this->hasOneThrough(Wallet::class,Category::class);
     }
+
+    public function checkTranByUser(){
+        return $this->category->wallet->user->id === Auth::id();
+    }
+
 }
