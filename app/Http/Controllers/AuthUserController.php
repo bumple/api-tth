@@ -9,11 +9,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Testing\Fluent\Concerns\Has;
 use Illuminate\Validation\ValidationException;
 use JWTAuth;
+
 class AuthUserController extends Controller
 {
 
@@ -120,4 +122,39 @@ class AuthUserController extends Controller
             'user' => auth()->user()
         ]);
     }
+
+   protected function update(Request $request, $id )
+   {
+       if ($request->hasFile('image')){
+           $user = User::find($id);
+           $user->name = $request->name;
+           $fileName = $request->image->getClientOriginalName();
+           $image = date('Y-m-d H:i:s') . '-' . $fileName;
+           $request->file('image')->storeAs('public/image', $image);
+           $user->avatar = $image;
+           $user->save();
+           $data = [
+               'message' => 'Successfully update profile',
+               'user' => $user
+           ];
+           return response()->json($data);
+       }
+   }
+
+
+   protected function changePassword(Request $request, $id) {
+        $user = User::find($id);
+
+        if (Hash::check($request->currentPassword, $user->password)) {
+            $user->password = Hash::make($request->password_confirmation);
+            $user->save();
+            return \response()->json('ok');
+        } else {
+            return \response()->json('false');
+        }
+   }
+
+   protected function getLoginUser($id){
+        return \response()->json(User::find($id));
+   }
 }
