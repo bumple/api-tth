@@ -3,9 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Transaction;
 use App\Models\Wallet;
+use http\Client\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use function GuzzleHttp\Promise\all;
 
 class CategoryController extends Controller
 {
@@ -16,7 +21,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $cate = Category::where('wallet_id',$request->wallet_id);
+        $cate = Category::where('wallet_id', $request->wallet_id);
         $data = [
             'status' => 'success',
             'data' => $cate
@@ -26,9 +31,11 @@ class CategoryController extends Controller
 
     public function getCategoryByWalletId($id)
     {
-        $wallet = Wallet::find($id);
-        $cate = $wallet->categories()->get();
-        return response()->json($cate);
+
+        if ($wallet = Wallet::where('user_id', Auth::id())->where('id', $id)->first()) {
+            return response()->json($wallet->categories()->get());
+        }
+        return response()->json();
     }
 
     /**
@@ -69,7 +76,7 @@ class CategoryController extends Controller
     public function show($id)
     {
         $cate = Category::find($id);
-        return response()->json($cate);
+        return $cate && $cate->wallet->user->id === Auth::id() ? \response()->json($cate) : response()->json(404);
     }
 
     /**
@@ -93,14 +100,15 @@ class CategoryController extends Controller
     public function update(Request $request, $id)
     {
         $cate = Category::find($id);
-        $cate->name = $request->name;
-        $cate->note = $request->note;
-        $cate->save();
-        $data = [
-            'status' => 'success',
-            'message' => 'Update success'
-        ];
-        return response()->json($data);
+        if ($cate && $cate->wallet->user->id === Auth::id()) {
+            $cate->update($request->all());
+            $data = [
+                'status' => 'success',
+                'message' => 'Update success'
+            ];
+            return response()->json($data);
+        }
+        return \response()->json([], 404);
     }
 
     /**
@@ -111,8 +119,7 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        $cate = Category::find($id);
-
+        $cate = $this->checkCategoryRole($id);
         if (!$cate) {
             $data = [
                 'status' => 'error',
@@ -128,4 +135,32 @@ class CategoryController extends Controller
         }
         return response()->json($data);
     }
+
+    public function categoryStatistic($id)
+    {
+        $cate = Category::where('wallet_id', $id)->get();
+        if ($cate && $cate[0]->wallet->user === Auth::id()) {
+            $cateID = []; // [1 mang cate] $cate[$i]->id -> [1,3,4]
+            for ($i = 0; $i < count($cate); $i++) {
+                array_push($cateID, $cate[$i]->id);
+            }
+            $data = Transaction::with('category')->whereIn('category_id', $cateID)
+                ->where('date', date('Y-m-d'))->get();
+            $total = 0;
+            for ($i = 0; $i < count($data); $i++) {
+                $total += $data[$i]->money;
+            }
+            return response()->json(['data' => $data, 'total' => $total]);
+        }
+        return \response()->json([], 404);
+    }
+
+    public function checkCategoryRole($id)
+    {
+        $cate = Category::find($id);
+        return $cate && $cate->wallet->user->id === Auth::id() ? $cate : null;
+    }
+
+
+
 }

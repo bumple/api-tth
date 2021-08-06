@@ -10,9 +10,11 @@ use http\Env\Response;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use mysql_xdevapi\Table;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class WalletController extends Controller
 {
@@ -23,7 +25,8 @@ class WalletController extends Controller
      */
     public function index()
     {
-        $wallets = Wallet::with('categories','transactions')->get();
+
+        $wallets = Wallet::with('categories', 'transactions')->where('user_id', Auth::id())->get();
         $data = [
             'status' => 'success',
             'data' => $wallets
@@ -58,8 +61,8 @@ class WalletController extends Controller
         $wallet->user_id = $request->user_id;
         $wallet->save();
 
-        $walletdata = Wallet::where('user_id',$request->user_id)->get();
-        $walletID = $walletdata[count($walletdata)-1]->id;
+        $walletdata = Wallet::where('user_id', Auth::id())->get();
+        $walletID = $walletdata[count($walletdata) - 1]->id;
 
         $cate = new Category();
         $cate->name = 'Income';
@@ -68,14 +71,16 @@ class WalletController extends Controller
         $cate->wallet_id = $walletID;
         $cate->save();
 
-        $catedata = Category::where('wallet_id',$walletID)->get();
+        $catedata = Category::where('wallet_id', $walletID)->get();
         $cateIncomeID = $catedata[0]->id;
 
         $tran = new Transaction();
         $tran->money = $request->amount;
         $tran->note = 'First add money when create a wallet';
-        $tran->date = date('d/m/Y');
+        $tran->date = date('Y-m-d');
         $tran->category_id = $cateIncomeID;
+        $tran->user_id = $request->user_id;
+        $tran->wallet_name = $request->name;
         $tran->save();
 
         $data = [
@@ -93,6 +98,7 @@ class WalletController extends Controller
      */
     public function show(int $id)
     {
+
         $wallet = Wallet::find($id);
         $data = [
             'status' => 'success',
@@ -122,15 +128,17 @@ class WalletController extends Controller
     public function update(Request $request, $id)
     {
         $wallet = Wallet::find($id);
-        $wallet->name = $request->name;
-        $wallet->amount = $request->amount;
-        $wallet->description = $request->description;
-        $wallet->icon = $request->icon;
-        $wallet->save();
-        $data = [
-            'status' => 'success',
-        ];
-        return response()->json($data);
+        if ($wallet->checkWalleByUser()) {
+            $wallet->name = $request->name;
+            $wallet->description = $request->description;
+            $wallet->icon = $request->icon;
+            $wallet->save();
+            $data = [
+                'status' => 'success',
+            ];
+            return response()->json($data);
+        }
+        return \response()->json([], 404);
     }
 
     /**
@@ -143,15 +151,19 @@ class WalletController extends Controller
     public function plusMoney(Request $request, $id)
     {
         $wallet = Wallet::find($id);
-        $wallet->amount += $request->amount;
-        $wallet->description = $request->description;
-        $wallet->date = $request->date;
-        $wallet->save();
+        if ($wallet->checkWalleByUser()) {
+            $wallet->amount += $request->amount;
+            $wallet->description = $request->description;
+            $wallet->date = $request->date;
+            $wallet->save();
 
-        $data = [
-            'status' => 'success',
-        ];
-        return response()->json($data);
+            $data = [
+                'status' => 'success',
+            ];
+            return response()->json($data);
+        }
+        return \response()->json([], 404);
+
     }
 
     /**
@@ -163,16 +175,21 @@ class WalletController extends Controller
     public function destroy($id)
     {
         $wallet = Wallet::find($id);
-        $wallet->transactions()->delete();
-        $wallet->categories()->delete();
-        $wallet->delete();
-        return response()->json();
+        if ($wallet->checkWalleByUser()) {
+            $wallet = Wallet::find($id);
+            $wallet->transactions()->delete();
+            $wallet->categories()->delete();
+            $wallet->delete();
+            return response()->json(['data' => 'success'], 201);
+        }
+        return \response()->json([], 404);
     }
 
     public function getWalletsByUserid($id): JsonResponse
     {
-        $data = Wallet::where('user_id', $id)->get();
-
+        $data = Wallet::where('user_id', Auth::id())->get();
         return response()->json($data);
     }
+
+
 }

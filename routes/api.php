@@ -40,12 +40,17 @@ Route::group([
     Route::resource('category', CategoryController::class);
     Route::get('transaction/info/{id}',[TransactionController::class,'findByCategoryId']);
     Route::get('category/info/{id}',[CategoryController::class,'getCategoryByWalletId']);
+    Route::get('statistics/{id}',[CategoryController::class,'categoryStatistic']);
+    Route::get('report/transactions',[TransactionController::class,'getReportTransaction']);
+    Route::post('report',[TransactionController::class,'getReportFromToDate']);
 
     Route::post('/get-wallet-by-userid/{id}',[WalletController::class,'getWalletsByUserid']);
     Route::post('/register', [AuthUserController::class, 'register'])->name('register');
     Route::post('/logout', [AuthUserController::class, 'logout'])->name('logout');
     Route::post('/refresh', [AuthUserController::class, 'refresh'])->name('refresh');
     Route::get('/user-profile', [AuthUserController::class, 'userProfile']);
+
+    Route::post('/export',[TransactionController::class,'exportToExcel']);
     Route::post('/user/{id}',[AuthUserController::class, 'update']);
     Route::patch('/user/changePassword/{id}',[AuthUserController::class, 'changePassword']);
     Route::get('/user/{id}',[AuthUserController::class, 'getLoginUser']);

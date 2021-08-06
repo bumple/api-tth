@@ -16,6 +16,7 @@ use Illuminate\Testing\Fluent\Concerns\Has;
 use Illuminate\Validation\ValidationException;
 use JWTAuth;
 
+
 class AuthUserController extends Controller
 {
 
@@ -46,20 +47,20 @@ class AuthUserController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-        $data = $request->only('email','password');
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|string|min:6',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
+            $validator = Validator::make($request->all(), [
+                'email' => 'required|email',
+                'password' => 'required|string|min:6',
+            ]);
 
-        if (!$token = JWTAuth::attempt($data)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-        return $this->createNewToken($token);
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
+
+            if (! $token = auth()->attempt($validator->validated())) {
+                return response()->json(['error' => 'Unauthorized'], 401);
+            }
+            return $this->createNewToken($token);
     }
 
     /**
