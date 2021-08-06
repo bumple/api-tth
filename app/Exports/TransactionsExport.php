@@ -40,7 +40,8 @@ class TransactionsExport implements FromCollection, WithHeadings, WithStyles,Sho
     public function styles(Worksheet $sheet)
     {
         return [
-            1    => ['font' => ['bold' => true]],
+            1    => ['font' => ['bold' => true]
+                ]
         ];
     }
 }
