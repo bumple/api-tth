@@ -139,7 +139,7 @@ class CategoryController extends Controller
     public function categoryStatistic($id)
     {
         $cate = Category::where('wallet_id', $id)->get();
-        if ($cate && $cate[0]->wallet->user === Auth::id()) {
+        if ($cate && $cate[0]->wallet->user->id === Auth::id()) {
             $cateID = []; // [1 mang cate] $cate[$i]->id -> [1,3,4]
             for ($i = 0; $i < count($cate); $i++) {
                 array_push($cateID, $cate[$i]->id);
