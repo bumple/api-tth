@@ -12,8 +12,6 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use const http\Client\Curl\AUTH_BASIC;
 
 class TransactionController extends Controller
 {
@@ -81,7 +79,6 @@ class TransactionController extends Controller
             $wallet->save();
             return response()->json(['message' => 'success'], 201);
         }
-//        return response()->json([], 404);
     }
 
     /**
@@ -178,7 +175,6 @@ class TransactionController extends Controller
         $tranMoneyWeek4 = Transaction::selectRaw('SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
        SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('user_id', Auth::id())->whereBetween('date', $time['week4'])->first();
 
-
         return response()->json([
             'week1' => $tranMoneyWeek1,
             'week2' => $tranMoneyWeek2,
@@ -215,6 +211,7 @@ class TransactionController extends Controller
         $to = $request->to;
         if ($request->from && $request->to) {
             $data = Wallet::where('user_id', Auth::id())->pluck('name');
+
             foreach ($data as $item) {
                 $tran = Transaction::selectRaw('wallet_name,SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
        SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('wallet_name', $item)->where('user_id', Auth::id())->whereBetween('date', [$from, $to])->groupBy('wallet_name')->first();
