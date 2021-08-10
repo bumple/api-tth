@@ -128,7 +128,7 @@ class WalletController extends Controller
     public function update(Request $request, $id)
     {
         $wallet = Wallet::find($id);
-        if ($wallet->checkWalleByUser()) {
+        if ($wallet->checkWalletByUser()) {
             $wallet->name = $request->name;
             $wallet->description = $request->description;
             $wallet->icon = $request->icon;
@@ -138,7 +138,7 @@ class WalletController extends Controller
             ];
             return response()->json($data);
         }
-        return \response()->json([], 404);
+        return response()->json([], 404);
     }
 
     /**
@@ -151,7 +151,7 @@ class WalletController extends Controller
     public function plusMoney(Request $request, $id)
     {
         $wallet = Wallet::find($id);
-        if ($wallet->checkWalleByUser()) {
+        if ($wallet->checkWalletByUser()) {
             $wallet->amount += $request->amount;
             $wallet->description = $request->description;
             $wallet->date = $request->date;
@@ -175,7 +175,7 @@ class WalletController extends Controller
     public function destroy($id)
     {
         $wallet = Wallet::find($id);
-        if ($wallet->checkWalleByUser()) {
+        if ($wallet->checkWalletByUser()) {
             $wallet = Wallet::find($id);
             $wallet->transactions()->delete();
             $wallet->categories()->delete();
@@ -190,6 +190,4 @@ class WalletController extends Controller
         $data = Wallet::where('user_id', Auth::id())->get();
         return response()->json($data);
     }
-
-
 }

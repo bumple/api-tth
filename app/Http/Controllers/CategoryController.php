@@ -160,7 +160,4 @@ class CategoryController extends Controller
         $cate = Category::find($id);
         return $cate && $cate->wallet->user->id === Auth::id() ? $cate : null;
     }
-
-
-
 }
