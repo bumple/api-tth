@@ -219,8 +219,8 @@ class TransactionController extends Controller
                 $tran = Transaction::selectRaw('wallet_name,SUM(CASE WHEN money > 0 THEN money ELSE 0 END) AS Income,
        SUM(CASE WHEN money < 0 THEN money ELSE 0 END) AS Outcome')->where('wallet_name', $item)->where('user_id', Auth::id())->whereBetween('date', [$from, $to])->groupBy('wallet_name')->first();
                 array_push($tranArray, $tran);
-                return Excel::download(new TransactionsExport(collect($tranArray)), 'test.xlsx');
             }
+            return Excel::download(new TransactionsExport(collect($tranArray)), 'test.xlsx');
         }
         return response()->json([], 404);
     }
