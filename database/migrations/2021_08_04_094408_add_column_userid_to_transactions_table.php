@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddFkCategoriesToTransactionTable extends Migration
+class AddColumnUseridToTransactionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,9 +14,7 @@ class AddFkCategoriesToTransactionTable extends Migration
     public function up()
     {
         Schema::table('transactions', function (Blueprint $table) {
-//            $table->unsignedBigInteger('category_id')->default(1);
-//            $table->foreign('category_id')->references('id')->on('categories');
-            $table->foreignId('category_id')->constrained('categories')->onDelete('cascade')->onUpdate('cascade');
+            $table->unsignedInteger('user_id');
         });
     }
 
