@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ExportController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AuthUserController;
 use App\Http\Controllers\WalletController;
@@ -52,4 +51,7 @@ Route::group([
     Route::get('/user-profile', [AuthUserController::class, 'userProfile']);
 
     Route::post('/export',[TransactionController::class,'exportToExcel']);
+    Route::post('/user/{id}',[AuthUserController::class, 'update']);
+    Route::patch('/user/changePassword/{id}',[AuthUserController::class, 'changePassword']);
+    Route::get('/user/{id}',[AuthUserController::class, 'getLoginUser']);
 });
