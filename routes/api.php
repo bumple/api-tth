@@ -50,7 +50,7 @@ Route::group([
     Route::post('/refresh', [AuthUserController::class, 'refresh'])->name('refresh');
     Route::get('/user-profile', [AuthUserController::class, 'userProfile']);
 
-    Route::post('/export',[TransactionController::class,'exportToExcel']);
+    Route::post('export',[TransactionController::class,'exportToExcel']);
     Route::post('/user/{id}',[AuthUserController::class, 'update']);
     Route::patch('/user/changePassword/{id}',[AuthUserController::class, 'changePassword']);
     Route::get('/user/{id}',[AuthUserController::class, 'getLoginUser']);
