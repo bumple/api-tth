@@ -27,7 +27,7 @@ class AuthUserController extends Controller
 
 
     public function userProfile(){
-        return \response()->json(Auth::user());
+        return response()->json(Auth::user());
     }
 
 
@@ -36,7 +36,6 @@ class AuthUserController extends Controller
      */
     public function login(Request $request): JsonResponse
     {
-
             $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required|string|min:6',
@@ -66,8 +65,6 @@ class AuthUserController extends Controller
      */
     public function register(Request $request)
     {
-
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
             'email' => 'required|string|email|max:100|unique:users',
@@ -87,7 +84,6 @@ class AuthUserController extends Controller
             'message' => 'User successfully registered',
             'user' => $user
         ], 201);
-
     }
 
     public function logout(): JsonResponse
@@ -96,13 +92,6 @@ class AuthUserController extends Controller
         return response()->json(['message' => 'User successfully signed out']);
     }
 
-    /**
-     * Get the token array structure.
-     *
-     * @param string $token
-     *
-     * @return JsonResponse
-     */
     protected function createNewToken(string $token): JsonResponse
     {
         return response()->json([
@@ -113,7 +102,7 @@ class AuthUserController extends Controller
         ]);
     }
 
-   protected function update(Request $request, $id )
+   protected function update(Request $request, $id ): JsonResponse
    {
        if ($request->hasFile('image')){
            $user = User::find($id);

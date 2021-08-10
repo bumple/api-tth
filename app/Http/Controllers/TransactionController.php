@@ -221,7 +221,7 @@ class TransactionController extends Controller
                 array_push($tranArray, $tran);
                 return Excel::download(new TransactionsExport(collect($tranArray)), 'test.xlsx');
             }
-        }return  response()->json([],404);
+        }
+        return response()->json([], 404);
     }
-
 }
