@@ -31,17 +31,6 @@ class AuthUserController extends Controller
     }
 
 
-//    public function login(Request $request)
-//    {
-////Auth::attempt($data)
-//        $credentials = $request->only(['email', 'password']);
-//        $credentials['password'] = Hash::make($credentials['password']);
-//        if (! $token = Auth::attempt($credentials)) {
-//            return response()->json(['error' => 'Unauthorized'], 401);
-//        } return $this->respondWithToken($token);
-//    }
-
-
     /**
      * @throws ValidationException
      */
